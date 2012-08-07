@@ -1,21 +1,6 @@
 var distriscopia = (function () {
 
     ////////////////////////////////////////////////////////////////////////////////
-    // Globals
-
-    var distributionIndex = 0;
-
-    var distributionList = [
-        "Add a distribution ...",
-        "Beta(alpha, beta)",
-        "Gamma(shape, scale)",
-        "Gamma(shape, rate)",
-        "Gamma(shape, mean)",
-        "Poisson(rate)",
-        "Poisson(mean)",
-    ];
-
-    ////////////////////////////////////////////////////////////////////////////////
     // Range Control
 
     function Range(min, max, num_points) {
@@ -46,12 +31,35 @@ var distriscopia = (function () {
             xi += istep;
         }
     }
-    var plotRange = new Range(0, 200, 5000);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // Globals
+
+    var distributionIndex = 0;
+
+    var distributionList = [
+        "Add a distribution ...",
+        "Beta(alpha, beta)",
+        "Gamma(shape, scale)",
+        "Gamma(shape, rate)",
+        "Gamma(shape, mean)",
+        "Poisson(rate)",
+        "Poisson(mean)",
+    ];
+    var plotterControl = null;
+    var plotDomain = new Range(0, 200, 5000);
 
     ////////////////////////////////////////////////////////////////////////////////
     // Plotting Control
 
-    function plotDistributions(regenerate) {
+    function getPlotterControl() {
+        if (plotterControl == null) {
+            plotterControl = $.plot($("#distribution-plotter"), []);
+        }
+        return plotterControl;
+    }
+
+    function getPlotData(regenerate) {
         var $headers = $(".accordionHeader");
         var plotData = [];
         $headers.each(function(index) {
@@ -62,23 +70,33 @@ var distriscopia = (function () {
                 }
                 plotData.push({label: distObj.getTitle(), data:distObj.pdfValues});
             }
-            // if (!distObj.hidden) {
-            //     if (regenerate) {
-            //         distObj.generateValues();
-            //     }
-            //     plotData.push({label: distObj.getTitle(), data:distObj.pdfValues});
-            // }
         });
-        $.plot($("#distribution-plotter"), plotData);
+        return plotData;
+    }
+
+    function plotDistributions(regenerate) {
+        var plotData = getPlotData(regenerate);
+        plotterControl = $.plot($("#distribution-plotter"), plotData);
     }
 
     function updateDistributionPlotDomain() {
         var $control = $("#distribution-plot-domain");
         var range = $control.slider("values");
-        plotRange.min = range[0];
-        plotRange.max = range[1];
-        plotRange.generateValues();
+        plotDomain.min = range[0];
+        plotDomain.max = range[1];
+        plotDomain.generateValues();
         plotDistributions(true);
+    }
+
+    function updateDistributionPlotZoomX() {
+        var $domain = $("#distribution-plot-domain");
+        var $zoom = $("#distribution-plot-zoom-x");
+        var zoom_range = $zoom.slider("values");
+        var value_range = $domain.slider("values");
+        var min = value_range[0] * zoom_range[0]/100;
+        var max = value_range[1] * zoom_range[1]/100;
+        var plotData = getPlotData(false);
+        $.plot($("#distribution-plotter"), plotData);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -381,7 +399,7 @@ var distriscopia = (function () {
         // var distCalc = new GammaDistribution(this.shape, this.scale);
         this.pdfValues = [];
         this.cdfValues = [];
-        // var xrange = plotRange.values;
+        // var xrange = plotDomain.values;
         for (var i = 0; i < xrange.length; ++i) {
             var x = xrange[i];
             var density = pdf(x);
@@ -401,7 +419,7 @@ var distriscopia = (function () {
     ContinuousDistributionGenerator.prototype = Object.create(DistributionGenerator.prototype);
     ContinuousDistributionGenerator.prototype.constructor = ContinuousDistributionGenerator;
     ContinuousDistributionGenerator.prototype.generateValues = function(pdf, cdf) {
-        var xrange = plotRange.real_values;
+        var xrange = plotDomain.real_values;
         DistributionGenerator.prototype.generateValues.call(this, xrange, pdf, cdf);
     }
 
@@ -412,7 +430,7 @@ var distriscopia = (function () {
     DiscreteDistributionGenerator.prototype = Object.create(DistributionGenerator.prototype);
     DiscreteDistributionGenerator.prototype.constructor = DiscreteDistributionGenerator;
     DiscreteDistributionGenerator.prototype.generateValues = function(pdf, cdf) {
-        var xrange = plotRange.int_values;
+        var xrange = plotDomain.int_values;
         DistributionGenerator.prototype.generateValues.call(this, xrange, pdf, cdf);
     }
 
