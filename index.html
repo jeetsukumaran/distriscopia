@@ -1,0 +1,59 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Distriscopia - Probability Distribution Visualization</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/jquery.aristo.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="css/distriscopia.css" />
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-1.8.9.min.js"></script>
+    <script type="text/javascript" src="js/jquery.flot.min.js"></script>
+    <script type="text/javascript" src="js/jstat-1.0.0.js"></script>
+    <script type="text/javascript" src="js/distriscopia.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            distriscopia.setupPage();
+        });
+    </script>
+
+</head>
+<body>
+    <div style="margin-top: 0px; margin-bottom: 15px; padding-top: 5px; padding-left: 5px; background: black; color: white">
+        <h1 style="margin-bottom: 0px">Distriscopia</h1>
+        <span>Probability Distribution Visualization</span>
+    </div>
+    <div id="distribution-manager" style="width:300px; float: left;">
+        <div id="distribition-adder-div">
+            <!-- <label for="add-distribution" style="font-size: 80%">Add a distribution:</label> -->
+            <select id="add-distribution"> </select> </div>
+        <div id="distribution-registry">
+            <!-- <h3><a href="#">First header</a></h3> -->
+            <!-- <div>First content</div> -->
+            <!-- <h3><a href="#">Second header</a></h3> -->
+            <!-- <div>Second content</div> -->
+        </div>
+    </div>
+    <div id="distribution-viewer" style="width: 602px; float: left; text-align: center;">
+        <div id="distribution-plotter-frame" style="border: solid 1px black; padding: 5px; width: 100%; text-align: center;">
+            <div id="distribution-plotter" style="width:600px; height: 600px;"></div>
+        </div>
+        <div style="margin-top: 10px; text-align: center; width: 100%;">
+            <div id="distribution-plot-domain"> </div>
+            <div id="distribution-plot-domain-input" style="text-align: center; margin-top: 10px;">
+                Plot domain:
+                <input id="distribution-plot-domain-input-min" style="width: 5em" />
+                to <input id="distribution-plot-domain-input-max" style="width: 5em"/>
+            </div>
+        </div>
+    </div>
+    <br style="clear:both" />
+    <div style="border-top: solid 2px black; margin-top: 15px;">
+        <p style="font-style: italic">
+        Copyright &copy; 2012 <a href="http://jeetworks.org">Jeet Sukumaran</a> and <a href="http://phylo.bio.ku.edu/content/mark-t-holder">Mark T. Holder</a>.<br>
+        Written (mostly) in <a href="http://en.wikipedia.org/wiki/JavaScript">JavaScript</a> using the <a href="http://jquery.com/">jQuery</a>, <a href="">jQuery UI</a>, <a href="http://code.google.com/p/flot/">Flot</a> and <a href="">jStat</a> libraries.<br>
+        Released under the <a href="http://opensource.org/licenses/mit-license.php/">MIT License</a> (<a href="http://opensource.org/licenses/mit-license.php/">http://opensource.org/licenses/mit-license.php/</a>).<br>
+        </p>
+    </div>
+</body>
