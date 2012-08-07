@@ -45,6 +45,7 @@ var distriscopia = (function () {
         "Gamma(shape, scale)",
         "Gamma(shape, rate)",
         "Gamma(shape, mean)",
+        "Normal(mean, sd)",
         "Poisson(rate)",
         "Poisson(mean)",
     ];
@@ -205,6 +206,8 @@ var distriscopia = (function () {
             $distReg.append(composeGammaShapeRateControlWidget());
         } else if ($distName === "Gamma(shape, mean)") {
             $distReg.append(composeGammaShapeMeanControlWidget());
+        } else if ($distName === "Normal(mean, sd)") {
+            $distReg.append(composeNormalControlWidget());
         } else if ($distName === "Poisson(rate)") {
             $distReg.append(composePoissonRateControlWidget());
         } else if ($distName === "Poisson(mean)") {
@@ -388,6 +391,16 @@ var distriscopia = (function () {
         var $control = composeDistributionControlWidgetTemplate(distId, distObj);
         addParamControlWidget($control, distId, 1, "shape", 1, 100, 0.01, 2);
         addParamControlWidget($control, distId, 2, "mean", 1, 100, 0.01, 1);
+        distObj.generateValues();
+        return $control;
+    }
+
+    function composeNormalControlWidget() {
+        var distId = getDistributionId();
+        var distObj = new NormalDistGenerator(2, 2);
+        var $control = composeDistributionControlWidgetTemplate(distId, distObj);
+        addParamControlWidget($control, distId, 1, "mean", 1, 100, 0.01, 2);
+        addParamControlWidget($control, distId, 2, "std. dev.", 1, 100, 0.01, 2);
         distObj.generateValues();
         return $control;
     }
@@ -618,6 +631,34 @@ var distriscopia = (function () {
     }
     GammaShapeMeanDistGenerator.prototype.generateValues = function(distCalc) {
         var distCalc = new GammaDistribution(this.shape, this.mean/this.shape);
+        ContinuousDistributionGenerator.prototype.generateValues.call(this,
+                function(x) {return distCalc._pdf(x)},
+                function(x) {return distCalc._cdf(x)});
+    }
+
+    // Normal /////////////////////////////////////////////////////////////
+
+    function NormalDistGenerator(mean, stddev) {
+        this.mean = mean;
+        this.stddev = stddev;
+    }
+    // inheritance
+    NormalDistGenerator.prototype = Object.create(ContinuousDistributionGenerator.prototype);
+    NormalDistGenerator.prototype.constructor = NormalDistGenerator;
+    NormalDistGenerator.prototype.getTitle = function() {
+        title = "Normal(";
+        title += "mean=" + this.mean;
+        title += ", ";
+        title += "sd=" + this.stddev;
+        title += ")";
+        return title;
+    }
+    NormalDistGenerator.prototype.setParamList = function(paramValues) {
+        this.mean = paramValues[0];
+        this.stddev = paramValues[1];
+    }
+    NormalDistGenerator.prototype.generateValues = function(distCalc) {
+        var distCalc = new NormalDistribution(this.mean, this.stddev);
         ContinuousDistributionGenerator.prototype.generateValues.call(this,
                 function(x) {return distCalc._pdf(x)},
                 function(x) {return distCalc._cdf(x)});
