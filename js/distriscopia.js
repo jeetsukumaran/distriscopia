@@ -40,6 +40,8 @@ var distriscopia = (function () {
     var distributionList = [
         "Add a distribution ...",
         "Beta(alpha, beta)",
+        "Exponential(rate)",
+        "Exponential(mean)",
         "Gamma(shape, scale)",
         "Gamma(shape, rate)",
         "Gamma(shape, mean)",
@@ -111,6 +113,11 @@ var distriscopia = (function () {
         return (r/f);
     }
 
+    function exponentialPdf(x, rate) {
+        // rate * e^{-rate * x)
+        // console.log(rate, x, -rate * x, Math.exp(-rate * x));
+        return rate * Math.exp(-rate * x);
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
     // UI
@@ -188,6 +195,10 @@ var distriscopia = (function () {
         var $distReg = $("#distribution-registry");
         if ($distName === "Beta(alpha, beta)") {
             $distReg.append(composeBetaDistGeneratorributionControlWidget());
+        } else if ($distName === "Exponential(rate)") {
+            $distReg.append(composeExponentialRateControlWidget());
+        } else if ($distName === "Exponential(mean)") {
+            $distReg.append(composeExponentialMeanControlWidget());
         } else if ($distName === "Gamma(shape, scale)") {
             $distReg.append(composeGammaShapeScaleControlWidget());
         } else if ($distName === "Gamma(shape, rate)") {
@@ -333,6 +344,24 @@ var distriscopia = (function () {
         return $control;
     }
 
+    function composeExponentialRateControlWidget() {
+        var distId = getDistributionId();
+        var distObj = new ExponentialRateDistGenerator(0.1);
+        var $control = composeDistributionControlWidgetTemplate(distId, distObj);
+        addParamControlWidget($control, distId, 1, "rate", 0.1, 10, 0.01, 0.1);
+        distObj.generateValues();
+        return $control;
+    }
+
+    function composeExponentialMeanControlWidget() {
+        var distId = getDistributionId();
+        var distObj = new ExponentialMeanDistGenerator(2);
+        var $control = composeDistributionControlWidgetTemplate(distId, distObj);
+        addParamControlWidget($control, distId, 1, "mean", 1, 100, 1, 2);
+        distObj.generateValues();
+        return $control;
+    }
+
     function composeGammaShapeScaleControlWidget() {
         var distId = getDistributionId();
         var distObj = new GammaShapeScaleDistGenerator(2, 2);
@@ -458,6 +487,57 @@ var distriscopia = (function () {
                 function(x) {return distCalc._cdf(x)});
     }
 
+    // ExponentialRate /////////////////////////////////////////////////////////////
+
+    function ExponentialRateDistGenerator(rate) {
+        this.rate = rate;
+    }
+    // inheritance
+    ExponentialRateDistGenerator.prototype = Object.create(ContinuousDistributionGenerator.prototype);
+    ExponentialRateDistGenerator.prototype.constructor = ExponentialRateDistGenerator;
+    ExponentialRateDistGenerator.prototype.getTitle = function() {
+        title = "Exponential(";
+        title += "rate=" + this.rate;
+        title += ")";
+        return title;
+    }
+    ExponentialRateDistGenerator.prototype.setParamList = function(paramValues) {
+        this.rate = paramValues[0];
+    }
+    ExponentialRateDistGenerator.prototype.generateValues = function(distCalc) {
+        // console.log(this.rate);
+        var rate = this.rate;
+        ContinuousDistributionGenerator.prototype.generateValues.call(this,
+                // function(x) {return poissonPmf(x, mean)},
+                function(x) {return exponentialPdf(x, rate)},
+                function(x) {return x});
+    }
+
+    // ExponentialMean /////////////////////////////////////////////////////////////
+
+    function ExponentialMeanDistGenerator(mean) {
+        this.mean = mean;
+    }
+    // inheritance
+    ExponentialMeanDistGenerator.prototype = Object.create(ContinuousDistributionGenerator.prototype);
+    ExponentialMeanDistGenerator.prototype.constructor = ExponentialMeanDistGenerator;
+    ExponentialMeanDistGenerator.prototype.getTitle = function() {
+        title = "Exponential(";
+        title += "mean=" + this.mean;
+        title += ")";
+        return title;
+    }
+    ExponentialMeanDistGenerator.prototype.setParamList = function(paramValues) {
+        this.mean = paramValues[0];
+    }
+    ExponentialMeanDistGenerator.prototype.generateValues = function(distCalc) {
+        var rate = 1/this.mean;
+        ContinuousDistributionGenerator.prototype.generateValues.call(this,
+                // function(x) {return jstat.poissonPmf(x, mean)},
+                function(x) {return exponentialPdf(x, rate)},
+                function(x) {return x});
+    }
+
     // GammaShapeScale /////////////////////////////////////////////////////////////
 
     function GammaShapeScaleDistGenerator(shape, scale) {
@@ -564,7 +644,8 @@ var distriscopia = (function () {
         // console.log(this.rate);
         var mean = 1/this.rate;
         DiscreteDistributionGenerator.prototype.generateValues.call(this,
-                function(x) {return poissonPmf(x, mean)},
+                // function(x) {return poissonPmf(x, mean)},
+                function(x) {return jstat.dopois_raw(x, mean)},
                 function(x) {return x});
     }
 
@@ -588,6 +669,7 @@ var distriscopia = (function () {
     PoissonMeanDistGenerator.prototype.generateValues = function(distCalc) {
         var mean = this.mean;
         DiscreteDistributionGenerator.prototype.generateValues.call(this,
+                // function(x) {return jstat.poissonPmf(x, mean)},
                 function(x) {return jstat.dopois_raw(x, mean)},
                 function(x) {return x});
     }
