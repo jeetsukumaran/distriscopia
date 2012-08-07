@@ -52,13 +52,6 @@ var distriscopia = (function () {
     ////////////////////////////////////////////////////////////////////////////////
     // Plotting Control
 
-    function getPlotterControl() {
-        if (plotterControl == null) {
-            plotterControl = $.plot($("#distribution-plotter"), []);
-        }
-        return plotterControl;
-    }
-
     function getPlotData(regenerate) {
         var $headers = $(".accordionHeader");
         var plotData = [];
@@ -76,7 +69,10 @@ var distriscopia = (function () {
 
     function plotDistributions(regenerate) {
         var plotData = getPlotData(regenerate);
-        plotterControl = $.plot($("#distribution-plotter"), plotData);
+        var options = {
+            // yaxis: { ticks: 0 },
+        };
+        plotterControl = $.plot($("#distribution-plotter"), plotData, options);
     }
 
     function updateDistributionPlotDomain() {
