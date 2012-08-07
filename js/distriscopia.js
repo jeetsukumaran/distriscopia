@@ -46,7 +46,7 @@ var distriscopia = (function () {
             xi += istep;
         }
     }
-    var plotRange = new Range(0, 500, 5000);
+    var plotRange = new Range(0, 200, 5000);
 
     ////////////////////////////////////////////////////////////////////////////////
     // Plotting Control
@@ -125,7 +125,7 @@ var distriscopia = (function () {
         var $slider_widget = $("#distribution-plot-domain");
         var $input_min = $("#distribution-plot-domain-input-min");
         var $input_max = $("#distribution-plot-domain-input-max");
-        var defaultRange = [0, 500];
+        var defaultRange = [0, 200];
 
         $slider_widget.slider({
             range: true ,
